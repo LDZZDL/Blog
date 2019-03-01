@@ -58,6 +58,7 @@ goto是Java的保留字，但是没有使用
 
 ## 7.int和Integer有什么区别？ 
 简单说，int是基本数据类型，Integer是类。
+
 | 基本数据类型 | short | int | long | float | double | char | byte | boolean |
 | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: |
 | 包装类型 | Short | Integer | Long | Float | Double | Character | Byte | Boolean |
