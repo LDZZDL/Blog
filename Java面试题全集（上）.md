@@ -94,6 +94,106 @@ if(str != null & str.equals("xxx"){
 }
 ```
 
+## 9.Java的栈和堆
+栈：基本数据类型、局部变量、函数调用的现场保存
+堆：new关键字和构造器创建的对象
+
+在下面的例子中，栈中存放arr变量,堆中存放int[3]数组
+```java
+int [] arr = new int[3]
+```
+
+## 10.Math.round(11.5)等于多少？Math.round(-11.5)等于多少？
+Math.round(11.5)的返回值是12，Math.round(-11.5)的返回值是-11。四舍五入的原理是在参数上加0.5然后进行下取整。
+
+## 11.switch 是否能作用在byte 上，是否能作用在long上，是否能作用在String上？
+java5之前：byte、short、char、int
+Java之后：enum
+java7之后：String
+所以，你如果使用的是Java7之上的版本，是可以作用到String上的
+```java
+	public static void main(String[] args) {
+		String result = "90";
+		switch (result) {
+		case "90":
+			System.out.println(90);
+			break;
+		case "80":
+			System.out.println(80);
+			break;
+		default:
+			break;
+		}
+	}
+```
+
+## 12.用最有效率的方法计算2乘以8？ 
+左移三位
+
+## 13.数组有没有length()方法？String有没有length()方法？
+```java
+	public static void main(String[] args) {
+		int [] arr = new int[3];
+		System.out.println(arr.length);
+		
+		String str = "Hello World";
+		System.out.println(str.length());
+	}
+```
+
+## 14.在Java中，如何跳出当前的多重嵌套循环？
+使用`break;`
+
+## 15.构造器（constructor）是否可被重写（override）？
+构造器不能被继承，因此不能被重写，但可以被重载。
+
+## 16.两个对象值相同(x.equals(y) == true)，但却可有不同的hash code，这句话对不对？
+不对
+
+## 17.是否可以继承String类？ 
+不行，String是final类
+
+## 18.当一个对象被当作参数传递到一个方法后，此方法可改变这个对象的属性，并可返回变化后的结果，那么这里到底是值传递还是引用传递？ 
+1.如果是传递的参数是基本数据类型（int,long,float,double,boolean,char,byte,short），是值传递，因为根本没有改变原来的传入参数的值
+```java
+	public static void main(String[] args) {
+		int a = 1, b = 5;
+		System.out.println("a="+a+", b="+b); //a=1, b=5
+		swap(a,b);
+		System.out.println("a="+a+", b="+b); //a=1, b=5
+	}
+	//交换a和b的值
+	public static void swap(int a, int b){
+		int temp = a;
+		b = a;
+		a = temp;
+	}
+```
+2.先看下面的代码
+```java
+	public static void main(String[] args) {
+		StringBuffer sb = new StringBuffer("Hello ");
+        System.out.println("before change:"+sb.toString());
+        change(sb);
+        System.out.println("after change:"+sb.toString());
+	}
+	public static void change(StringBuffer stringBuffer){
+		stringBuffer.append("World");
+	}
+```
+最终结果：
+`before change:Hello `
+`after change:Hello World`
+
+如果是参数是对象，实际上传的是引用
+
+## 19.String和StringBuilder、StringBuffer的区别？ 
+String是只读字符串（字符串常量），内容无法被修改，里面并没有存在像append()的方法
+StringBuilder、StringBuffer是可以修改的字符串，两者的区别是
+StringBuffer 是线程安全的；StringBuilder 是非线程安全的。
+
+参考链接：[深入理解Java中的String](https://www.cnblogs.com/xiaoxi/p/6036701.html)
+
 
 
 
