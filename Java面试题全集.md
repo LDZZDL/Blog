@@ -306,6 +306,83 @@ GC（Garbage Collections）垃圾回收，程序员自己手动管理内存申�
 ## 49.当一个线程进入一个对象的synchronized方法A之后，其它线程是否可进入此对象的synchronized方法B？
 不能
 
+## 50.JSP和Servlet是什么？
+```java
+public interface Servlet {
+    void init(ServletConfig var1);
+    ServletConfig getServletConfig();
+    void service(ServletRequest var1, ServletResponse var2)；
+    String getServletInfo();
+    void destroy();
+}
+```
+简而言之，Servlet就是编程接口，但是和我们通常所说的Servlet并不是这个编程接口，而是如下面所示的情况。
+```java
+public class Servlet1 extends HttpServlet {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+    }
+
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+    }
+}
+```
+通过我们所说的Servlet是特殊的Java程序，能够处理来自客户端的Http请求。
+JSP本质上也是servlet，只不过JSP更专注于前端页面的，Servlet更专注于业务流程的控制，在经典的MVC结构中，Servlet通常充当控制器C，JSP重当视图V
+
+## 51.Servlet、Listener、Filter优先级
+Servlet、Listener、Filter的加载顺序和在web.xml中的顺序不一样，Listener>Filter>Servlet
+
+## 52.ServletContext、Session、request、PageContext
+- ServletContext：在应用服务器被加载之后，立刻创建ServletContext的对象，存在于整个Web应用
+- Session：第一次调用request.getSession()创建，因为1.超时 2.主动销毁 session.invalidate() 3.意外销毁，比如关闭服务器。Session存在于整个会话范围
+- request：开始于request对象的创建,销毁于request的销毁，作用范围整个请求链
+- PageContext：开始于JSP页面创建，销毁与JSP页面销毁
+
+
+## 53.Web.xml的作用
+1.可以用来配置首页或者欢迎页面
+```
+<welcome-file-list>
+    <welcome-file>index1.jsp</welcome-file>
+    <welcome-file>index2.jsp</welcome-file>
+    <welcome-file>index3.jsp</welcome-file>
+    <welcome-file>index4.jsp</welcome-file>
+</welcome-file-list>
+```
+2.可以用来配置error-page,根据Http状态码来配置错误页面
+```
+<error-page>
+    <error-code>404</error-code>
+    <location>error-404.jsp</location>
+</error-page>
+```
+3.配置Servlet、Filter、Listener，或者可以使用@WebServlet、@@WebFilter、WebListener注解进行配置
+4.配置context-param,在，这个键值对
+```
+<context-param>
+    <param-name>code</param-name>
+    <param-value>UTF-8</param-value>
+</context-param>
+```
+
+## 54.什么是Web Service（Web服务）？ 
+简而言之，Web Service就是API接口，通过接口，可以获取所需要的信息。比如查快递的Web Service、查天气的Web Service、查汇率的Web Service，网上也有很多网站提供付费的Web Service
+
+## 54.什么是ORM？
+从字面上来看，ORM是Object-Relational Mapping，即对象关系映射，解决面向对象模型和数据库模型之间匹配的问题，通过XML或者注解的方式，将关系数据库中的模型转换成Java对象
+
+## 55.持久层设计要考虑的问题有哪些？你用过的持久层框架有哪些？ 
+持久就是将数据存储到可掉电式存储设备，需要的考虑的问题：
+- 对外提供抽象的数据访问接口，屏蔽实现逻辑
+- 对内需要将实现逻辑和业务逻辑分离，能够实现可迁移性，比如动态切换数据库
+- 在持久化层实现统一的资源调度
+- 数据抽象，提供更面向对象的数据操作
+常用框架：Hibernate MyBatis
+
 
 
 
