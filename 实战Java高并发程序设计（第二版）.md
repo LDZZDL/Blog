@@ -212,3 +212,84 @@ public class BadLockOnInteger implements Runnable{
 }
 ```
 在上面的例子中，我么所能看到的结果并不是`20000000`，而是`11744170`。为什么?不是都加锁了吗？因为Integer是不可变对象，我们对他进行++操作，它其实会重新产生新的对象——`valueOf(i.intValue()+1)`。所以i所指向的对象会一直发生改变，所以加锁对象都发生了变回，自然谈不上线程安全了。
+
+## 第三章
+
+重入锁，英文`ReentrantLock`，为什么叫做重入锁？一个线程可以多次获得对象的锁，在释放的过程中我们也需要多次释放掉对象的锁。
+```
+lock.lock();
+lock.lock();
+try{
+    i++;
+}finally{
+    lock.unlock();
+    lock.unlock();
+}
+```
+冲入锁的优势：
+- 上说所提到的灵活性
+- 重入锁可以提供中断处理能力。使用`lockInterruptibly`方法，这是一个可以响应中断的申请锁操作。如果线程产生中断，会放弃对锁的申请。
+- 可以设定申请锁的时间。使用`lock.tryLock`方法。
+
+---
+公平锁：通常而言，我们所使用的锁都是非公平的，但是我们可以在冲入锁中设置公平性。
+```
+public ReentrantLock(boolean fair)
+```
+公平锁的优点不会产生饥饿现象，但是公平锁需要维护有序公共队列，成本就高，性能会下降。
+
+ReentrantLock的几个重要方法：
+lock()：获得锁，如果所被占用，等待
+lockInterruptibly()：获得锁，但优先响应中断
+tryLock()：尝试获得或，如果成功，则返回true，失败返回false。该方法不等待，立即返回。
+tryLock(long time,TimeUnit unit)：在给定时间内尝试获得锁
+unlock()：释放锁
+
+---
+`Object.wait()`、`Object.notify()`、和`Synchronized`关键字一起使用。而`condition`和冲入锁搭配使用。
+condition接口：
+```
+void await() throws InterruptedException
+void awaitUninterruptibly();
+void awaitNanos(long nanoTimeout) throws InteruptedException;
+void await(long time, TimeUnit unit) throws InterruptedException;
+void await(Date deadline) throws InterruptedException;
+void signal();
+void signalAll();
+```
+
+---
+允许多个线程同时访问：信号量（Semaphore）
+信号量是对内部锁`synchronized`和重入锁`ReentrantLock`的延伸，信号量可以指定多个信号量，同时访问临界资源。
+信号量的构造函数：
+```
+public Semaphore(int permits);
+public Semaphore(int permits,boolean fair);
+```
+信号量的逻辑方法：
+```
+public void acquire(); //获取对临界资源的访问权限，获取不到则等待
+public void acquireUninterrupted(); //和acquire，但是不响应中断
+public boolean tryAcquire(); //尝试获取对临界资源的访问，不进行等待
+public boolean tryAcquire(long timeout,TimeUnit unit);
+public void release(); //释放对临界资源的占用
+```
+
+---
+ReadWriteLock读写锁
+`ReadWriteLock`是JDK5中提供的读写分离锁。
+| 类型 | 读 | 写|
+|:----:|:----:|:----:|
+|读| 非阻塞| 阻塞|
+|写| 阻塞 | 阻塞|
+就是，我们同时在读取临界资源或者共享变量的同时，并不需要加锁。
+
+---
+倒计时：CountDownLatch。这个可以让某个线程等待直到倒计时结束，再开始执行。构造函数接受一个整数作为参数，这个参数当做计时器的计时个数。
+`public CountDownLatch(int count)`
+
+--- 
+循环栅栏：CyclieBarrier。循环栅栏可以实现线程之间的计数等待，功能比CountDownLatch更加复杂强大。
+
+---
+LockSupport是一个线程阻塞工具。里面有 `pork`和`unpork`方法。
