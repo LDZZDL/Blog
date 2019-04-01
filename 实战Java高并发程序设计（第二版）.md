@@ -293,3 +293,140 @@ ReadWriteLock读写锁
 
 ---
 LockSupport是一个线程阻塞工具。里面有 `pork`和`unpork`方法。
+
+---
+Guava是Google出品的Java库，里面提供了很多实用的工具类。`RateLimiter`是限流工具库。限流算法：漏桶算法和令牌桶算法。
+
+线程池：一次性创建多个线程，将线程连接统一进行管理，需要线程去线程池中获得，线程实用完毕之后将线程重新放回到线程池中。
+JDK对线程池提供了支持，即`Executor`框架，来帮助开发人员进行管理线程。
+核心线程池的内部实现：`ThreadExecutor`
+```
+public ThreadPoolExecutor(int corePoolSize,
+                              int maximumPoolSize,
+                              long keepAliveTime,
+                              TimeUnit unit,
+                              BlockingQueue<Runnable> workQueue);
+            
+```
+`corePoolSize`:指定了线程池中的线程数量
+`maximumPoolSize`:指定了线程池中的最大线程数量
+`keepAliveTime`:当当前线程数据超过`corePoolSize`时，多余的空闲线程的存活时间，即超过`corePoolSize`的空闲线程，在多长时间内会被销毁
+`unit`:KeepAliveTime的时间单位
+`workQueue`:任务队列，被提交尚未执行的任务
+`ThreadFactory`:线程工厂，用来穿件线程，一般默认即可
+`handler`:拒接策略，当任务太多来不及处理的时候，如何拒绝任务。
+
+---
+Fork和Join框架，分而治之的思想。
+Guava中对线程池的扩展：
+- 特殊的DirectExector线程池
+- Daemon线程池
+- 对Future模式的扩展
+
+---
+并发集合：
+- 线程安全的HashMap。HashMap是线程不安全的，如果要获得线程安全。我们可以通过下面代码`Collections.synchronizedMap(new HashMap())`。
+原理
+```
+private static class SynchronizedMap<K,V> implements Map<K,V>,serializable {
+    private static final long serialVersionUID = 19781984382238238L;
+    private final Map<K,V> m;
+    final Object mutex;
+}
+
+//通过负mutex加锁，来达到我们线程安全的目的
+public V get(Object key){
+    synchronized (mutex){
+        return m.get(key);
+    }
+}
+```
+
+#
+使用我们可以看到的ConcurrentHashMap更加适合多线程并发的场景。
+
+## 锁的优化及其注意事项
+- 减少锁持有的时间
+- 减少锁的粒度
+- 用读写分离的锁替换独占锁
+- 锁分离
+- 锁粗化：锁粗化就是将一系列连续地对一个锁不断进行请求和释放的操作时，便会把所有的锁整合成一次请求，从而减少对所的请求同步的次数。
+```
+for(int i = 0; i < 1000; i++){
+    synchronized(this){
+    
+    }
+}
+//对其进行优化操作
+synchronized(this){
+    for(int i = 0; i < 1000; i++){
+
+    }    
+}
+```
+
+这里介绍JDK内部的“锁”的优化策略。
+
+- 锁偏向。锁偏向是一种针对锁操作的加锁行为，一个线程获得了锁，那么所就进入了偏向模型。当这个线程再次请求锁的时候，它就无需进行同步操作。竞技激烈的条件下，偏向锁会失效。
+- 轻量级锁。偏向锁失败之后，虚拟机会使用一种叫做轻量级锁的优化手段。轻量锁失败，线程转入重量级锁。
+- 自旋锁。在锁膨胀之后，为了避免线程真实地在操作系统层面挂起，虚拟机最最后的尝试。虚拟机会让当前线程做若干空循环，等待若干时间，如果线程能够获取锁的，那是最好。如果不行的话，线程挂起。
+- 锁消除。Java虚拟机在JIT编译的时候，优化那些不可能存在竞争的锁。锁消除的一项关键技术即`逃逸技术`。所谓的逃逸技术就是观察变量是否会逃出一个作用域。
+
+--- 
+无锁，乐观机制。
+在无锁的情况下，使用CAS，（Compare And Swap）来鉴别线程冲突。
+CAS(V,E,N):
+
+- V代表要更新的变量
+- E代表预期值
+- N代表新值
+
+仅仅当V=E的时候，才会将V的值设置为N，如果V!=E的时候，就代表其他线程进行修改，当前线程不进行操作。大部分现代处理器已经支持了原子化的CAS指令。
+
+在Java中，JDK中有一个名为`atomic`的包，里面直接使用了CAS操作达到了线程安全。
+
+- atomic包
+- unsafe类
+- AtomicReference
+- AtomicStampedReference：带时间戳的对象引用
+- 数组的无锁结构
+- 让普通变量也享受原子操作 
+
+
+## 并发模式与算法
+- 单例模式
+- 不变模式
+不变对象的使用场景。当对象创建之后，其内部状态和数据不再发生任何变化。对象需要被共享，被多想城频繁访问。不变模式的例子：String类，Integer类
+如何设置不变模型：
+1. 去除setter方法以及所有的修改自身属性的方法
+2. 将所有属性设置为私有，并且用final标记，确保其不可修改
+3. 确保没有子类可以修改他的行为
+4. 创建一个可以完整创建对象的构造函数
+
+
+- Future模式
+- 并行
+- NIO
+
+## Java8/9/10与并发
+
+函数式编程特点：
+
+- 函数作为一等公民
+- 无副作用
+- 声明式（Declarative）
+- 不变对象
+- 更少的代码
+
+函数式编程基础：
+
+- FunctionalInterface注释
+- 接口默认方法
+- 方法引用
+
+## 使用Akka构建高并发程序
+
+## 并行程序调试
+
+## 多线程优化示例
+
